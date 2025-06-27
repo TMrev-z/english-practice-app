@@ -1259,26 +1259,34 @@ class EnglishPracticeApp {
             const userDoc = await getDoc(userDocRef);
             
             if (userDoc.exists()) {
-                this.stats = userDoc.data().stats || this.loadStats();
-                console.log('クラウドからデータ読み込み:', this.stats);
+                const cloudData = userDoc.data().stats;
+                console.log('✅ クラウドからデータ読み込み:', cloudData);
+                this.stats = cloudData || this.loadStats();
             } else {
+                console.log('🆕 初回ログイン: ローカルデータをクラウドに保存');
                 // 初回ログイン：ローカルデータをクラウドに保存
                 await this.saveUserData();
             }
             
             this.updateUI();
         } catch (error) {
-            console.error('ユーザーデータ読み込みエラー:', error);
+            console.error('❌ ユーザーデータ読み込みエラー:', error);
+            console.error('エラー詳細:', error.message);
         }
     }
 
     // Firestoreにユーザーデータ保存
     async saveUserData() {
-        if (!this.currentUser || !window.firebaseDb) return;
+        if (!this.currentUser || !window.firebaseDb) {
+            console.log('保存スキップ: ユーザー未ログインまたはFirebase未初期化');
+            return;
+        }
         
         try {
             const { doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
             const userDocRef = doc(window.firebaseDb, 'users', this.currentUser.uid);
+            
+            console.log('Firestoreに保存中...', this.stats);
             
             await setDoc(userDocRef, {
                 stats: this.stats,
@@ -1287,9 +1295,10 @@ class EnglishPracticeApp {
                 email: this.currentUser.email
             }, { merge: true });
             
-            console.log('クラウドにデータ保存完了');
+            console.log('✅ クラウドにデータ保存完了:', this.stats);
         } catch (error) {
-            console.error('ユーザーデータ保存エラー:', error);
+            console.error('❌ ユーザーデータ保存エラー:', error);
+            console.error('エラー詳細:', error.message);
         }
     }
 }
@@ -1318,5 +1327,19 @@ async function signOut() {
         console.log('ログアウト成功');
     } catch (error) {
         console.error('ログアウトエラー:', error);
+    }
+}
+
+// デバッグ用関数
+function testFirestoreConnection() {
+    if (window.app && window.app.currentUser) {
+        console.log('🔍 Firestore接続テスト開始');
+        console.log('ユーザー:', window.app.currentUser.displayName);
+        console.log('現在の統計:', window.app.stats);
+        
+        // 手動でデータ保存をテスト
+        window.app.saveUserData();
+    } else {
+        console.log('❌ ユーザーがログインしていません');
     }
 }
