@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PWA Test</title>
+</head>
+<body>
+    <h1>PWA Test Page</h1>
+    <p>If you can see this page, the basic file structure is working.</p>
+    <p><a href="index.html">Go to English Practice App</a></p>
+    
+    <script>
+        // Simple test for PWA features
+        if ('serviceWorker' in navigator) {
+            console.log('✅ Service Worker supported');
+        } else {
+            console.log('❌ Service Worker not supported');
+        }
+        
+        if ('beforeinstallprompt' in window) {
+            console.log('✅ PWA install prompt supported');
+        } else {
+            console.log('❌ PWA install prompt not supported');
+        }
+        
+        console.log('Manifest link present:', !!document.querySelector('link[rel="manifest"]'));
+    </script>
+</body>
+</html>

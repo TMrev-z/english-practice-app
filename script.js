@@ -8,11 +8,13 @@ class EnglishPracticeApp {
         this.selectedAnswer = null;
         this.startTime = null;
         this.stats = this.loadStats();
+        this.currentUser = null;
         
         this.init();
     }
 
     init() {
+        this.setupAuthStateListener();
         this.updateUI();
         this.setupEventListeners();
         this.registerServiceWorker();
@@ -1117,6 +1119,11 @@ class EnglishPracticeApp {
     // 統計保存
     saveStats() {
         localStorage.setItem('englishPracticeStats', JSON.stringify(this.stats));
+        
+        // ログイン中の場合、クラウドにも保存
+        if (this.currentUser) {
+            this.saveUserData();
+        }
     }
 
     // 統計読み込み
@@ -1197,9 +1204,119 @@ class EnglishPracticeApp {
             installBtn.remove();
         }
     }
+
+    // Firebase認証状態リスナー
+    setupAuthStateListener() {
+        // Firebase初期化を待つ
+        const checkFirebase = () => {
+            if (window.firebaseAuth) {
+                window.firebaseAuth.onAuthStateChanged((user) => {
+                    this.currentUser = user;
+                    this.updateAuthUI();
+                    
+                    if (user) {
+                        console.log('ユーザーログイン:', user.displayName);
+                        this.loadUserData();
+                    } else {
+                        console.log('ユーザーログアウト');
+                        this.loadStats(); // ローカルデータにフォールバック
+                    }
+                });
+            } else {
+                // Firebase未初期化の場合、100ms後に再試行
+                setTimeout(checkFirebase, 100);
+            }
+        };
+        checkFirebase();
+    }
+
+    // 認証UI更新
+    updateAuthUI() {
+        const loginSection = document.getElementById('login-section');
+        const userSection = document.getElementById('user-section');
+        
+        if (this.currentUser) {
+            // ログイン後
+            loginSection.style.display = 'none';
+            userSection.style.display = 'flex';
+            
+            document.getElementById('user-name').textContent = this.currentUser.displayName || 'ユーザー';
+            document.getElementById('user-avatar').src = this.currentUser.photoURL || '';
+        } else {
+            // 未ログイン
+            loginSection.style.display = 'flex';
+            userSection.style.display = 'none';
+        }
+    }
+
+    // Firestoreからユーザーデータ読み込み
+    async loadUserData() {
+        if (!this.currentUser || !window.firebaseDb) return;
+        
+        try {
+            const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            const userDocRef = doc(window.firebaseDb, 'users', this.currentUser.uid);
+            const userDoc = await getDoc(userDocRef);
+            
+            if (userDoc.exists()) {
+                this.stats = userDoc.data().stats || this.loadStats();
+                console.log('クラウドからデータ読み込み:', this.stats);
+            } else {
+                // 初回ログイン：ローカルデータをクラウドに保存
+                await this.saveUserData();
+            }
+            
+            this.updateUI();
+        } catch (error) {
+            console.error('ユーザーデータ読み込みエラー:', error);
+        }
+    }
+
+    // Firestoreにユーザーデータ保存
+    async saveUserData() {
+        if (!this.currentUser || !window.firebaseDb) return;
+        
+        try {
+            const { doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            const userDocRef = doc(window.firebaseDb, 'users', this.currentUser.uid);
+            
+            await setDoc(userDocRef, {
+                stats: this.stats,
+                lastUpdated: serverTimestamp(),
+                displayName: this.currentUser.displayName,
+                email: this.currentUser.email
+            }, { merge: true });
+            
+            console.log('クラウドにデータ保存完了');
+        } catch (error) {
+            console.error('ユーザーデータ保存エラー:', error);
+        }
+    }
 }
 
 // アプリケーション初期化
 document.addEventListener('DOMContentLoaded', () => {
-    new EnglishPracticeApp();
+    window.app = new EnglishPracticeApp();
 });
+
+// グローバル認証関数
+async function signInWithGoogle() {
+    try {
+        const { signInWithPopup } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+        const result = await signInWithPopup(window.firebaseAuth, window.googleProvider);
+        console.log('ログイン成功:', result.user.displayName);
+    } catch (error) {
+        console.error('ログインエラー:', error);
+        alert('ログインに失敗しました。もう一度お試しください。');
+    }
+}
+
+async function signOut() {
+    try {
+        const { signOut: firebaseSignOut } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+        await firebaseSignOut(window.firebaseAuth);
+        console.log('ログアウト成功');
+    } catch (error) {
+        console.error('ログアウトエラー:', error);
+    }
+}

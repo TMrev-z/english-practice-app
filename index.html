@@ -24,6 +24,38 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        // Import Firebase SDKs
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+        
+        // Firebase設定
+        const firebaseConfig = {
+            apiKey: "AIzaSyC38BUxyaXpSMurfgUTgyVb15_OmHOenn4",
+            authDomain: "english-practice-app-be1ec.firebaseapp.com",
+            projectId: "english-practice-app-be1ec",
+            storageBucket: "english-practice-app-be1ec.firebasestorage.app",
+            messagingSenderId: "1671767825",
+            appId: "1:1671767825:web:9f55e0891da8f40c268eb0",
+            measurementId: "G-D12K9N3YRV"
+        };
+        
+        // Firebase初期化
+        const app = initializeApp(firebaseConfig);
+        window.firebaseAuth = getAuth(app);
+        window.firebaseDb = getFirestore(app);
+        window.googleProvider = new GoogleAuthProvider();
+        window.analytics = getAnalytics(app);
+        
+        // Google認証プロバイダー設定
+        window.googleProvider.setCustomParameters({
+            prompt: 'select_account'
+        });
+    </script>
 </head>
 <body>
     <!-- ヘッダー -->
@@ -34,13 +66,31 @@
                 中学英語練習アプリ
             </h1>
             <div class="user-stats">
-                <div class="stat">
-                    <span class="material-icons">emoji_events</span>
-                    <span id="total-score">0</span>点
+                <!-- 未ログイン時 -->
+                <div id="login-section" class="auth-section">
+                    <button class="login-btn" onclick="signInWithGoogle()">
+                        <span class="material-icons">account_circle</span>
+                        Googleでログイン
+                    </button>
                 </div>
-                <div class="stat">
-                    <span class="material-icons">check_circle</span>
-                    <span id="completed-questions">0</span>問完了
+                
+                <!-- ログイン後 -->
+                <div id="user-section" class="auth-section" style="display: none;">
+                    <div class="user-info">
+                        <img id="user-avatar" class="user-avatar" src="" alt="User">
+                        <span id="user-name">ユーザー名</span>
+                    </div>
+                    <div class="stat">
+                        <span class="material-icons">emoji_events</span>
+                        <span id="total-score">0</span>点
+                    </div>
+                    <div class="stat">
+                        <span class="material-icons">check_circle</span>
+                        <span id="completed-questions">0</span>問完了
+                    </div>
+                    <button class="logout-btn" onclick="signOut()">
+                        <span class="material-icons">logout</span>
+                    </button>
                 </div>
             </div>
         </div>
