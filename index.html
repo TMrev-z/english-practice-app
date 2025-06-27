@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中学英語練習アプリ</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="中学英語の基礎を楽しく効率的に学習できるアプリ">
+    <meta name="theme-color" content="#4285F4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="英語練習">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- PWA Icons for iOS -->
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#4285F4">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">
+                <span class="material-icons">school</span>
+                中学英語練習アプリ
+            </h1>
+            <div class="user-stats">
+                <div class="stat">
+                    <span class="material-icons">emoji_events</span>
+                    <span id="total-score">0</span>点
+                </div>
+                <div class="stat">
+                    <span class="material-icons">check_circle</span>
+                    <span id="completed-questions">0</span>問完了
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main">
+        <div class="container">
+            <!-- ホーム画面 -->
+            <section id="home-section" class="section active">
+                <div class="welcome">
+                    <h2>📚 中学英語をマスターしよう！</h2>
+                    <p>カテゴリを選んで練習を始めましょう</p>
+                </div>
+
+                <div class="categories-grid">
+                    <div class="category-card" onclick="startCategory('be-verb')">
+                        <div class="category-icon">🔴</div>
+                        <h3>be動詞</h3>
+                        <p>am, is, areの基本</p>
+                        <div class="progress-bar">
+                            <div class="progress" data-category="be-verb"></div>
+                        </div>
+                        <span class="questions-count">10問</span>
+                    </div>
+
+                    <div class="category-card" onclick="startCategory('general-verb')">
+                        <div class="category-icon">🔵</div>
+                        <h3>一般動詞</h3>
+                        <p>play, study, eatなど</p>
+                        <div class="progress-bar">
+                            <div class="progress" data-category="general-verb"></div>
+                        </div>
+                        <span class="questions-count">10問</span>
+                    </div>
+
+                    <div class="category-card" onclick="startCategory('question')">
+                        <div class="category-icon">❓</div>
+                        <h3>疑問文</h3>
+                        <p>質問の作り方</p>
+                        <div class="progress-bar">
+                            <div class="progress" data-category="question"></div>
+                        </div>
+                        <span class="questions-count">10問</span>
+                    </div>
+
+                    <div class="category-card" onclick="startCategory('negative')">
+                        <div class="category-icon">❌</div>
+                        <h3>否定文</h3>
+                        <p>〜ではない、〜しない</p>
+                        <div class="progress-bar">
+                            <div class="progress" data-category="negative"></div>
+                        </div>
+                        <span class="questions-count">10問</span>
+                    </div>
+
+                    <div class="category-card" onclick="startCategory('tense')">
+                        <div class="category-icon">⏰</div>
+                        <h3>時制</h3>
+                        <p>現在・過去・未来</p>
+                        <div class="progress-bar">
+                            <div class="progress" data-category="tense"></div>
+                        </div>
+                        <span class="questions-count">15問</span>
+                    </div>
+
+                    <div class="category-card" onclick="startCategory('auxiliary')">
+                        <div class="category-icon">🔧</div>
+                        <h3>助動詞</h3>
+                        <p>can, will, mustなど</p>
+                        <div class="progress-bar">
+                            <div class="progress" data-category="auxiliary"></div>
+                        </div>
+                        <span class="questions-count">10問</span>
+                    </div>
+
+                    <div class="category-card" onclick="startCategory('advanced')">
+                        <div class="category-icon">🌟</div>
+                        <h3>応用文法</h3>
+                        <p>進行形・完了形・受動態</p>
+                        <div class="progress-bar">
+                            <div class="progress" data-category="advanced"></div>
+                        </div>
+                        <span class="questions-count">15問</span>
+                    </div>
+
+                    <div class="category-card" onclick="startCategory('vocabulary')">
+                        <div class="category-icon">📖</div>
+                        <h3>基本単語</h3>
+                        <p>中学必須120語</p>
+                        <div class="progress-bar">
+                            <div class="progress" data-category="vocabulary"></div>
+                        </div>
+                        <span class="questions-count">20問</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="startRandomTest()">
+                        <span class="material-icons">shuffle</span>
+                        ランダム練習
+                    </button>
+                    <button class="btn-secondary" onclick="showStats()">
+                        <span class="material-icons">analytics</span>
+                        学習記録
+                    </button>
+                </div>
+            </section>
+
+            <!-- 問題画面 -->
+            <section id="quiz-section" class="section">
+                <div class="quiz-header">
+                    <button class="back-btn" onclick="goHome()">
+                        <span class="material-icons">arrow_back</span>
+                    </button>
+                    <div class="quiz-info">
+                        <h3 id="category-title">カテゴリ名</h3>
+                        <div class="question-counter">
+                            <span id="current-question">1</span> / <span id="total-questions">10</span>
+                        </div>
+                    </div>
+                    <div class="quiz-score">
+                        <span id="current-score">0</span>点
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-type" id="question-type">文法問題</div>
+                    <h2 class="question-text" id="question-text">問題文がここに表示されます</h2>
+                    
+                    <div class="answer-options" id="answer-options">
+                        <!-- 選択肢がここに動的生成されます -->
+                    </div>
+
+                    <div class="question-actions">
+                        <button id="submit-btn" class="btn-primary" onclick="submitAnswer()" disabled>
+                            回答
+                        </button>
+                        <button id="next-btn" class="btn-secondary" onclick="nextQuestion()" style="display: none;">
+                            次の問題
+                        </button>
+                    </div>
+
+                    <div class="feedback" id="feedback" style="display: none;">
+                        <!-- フィードバックがここに表示されます -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 結果画面 -->
+            <section id="result-section" class="section">
+                <div class="result-card">
+                    <div class="result-icon" id="result-icon">🎉</div>
+                    <h2 id="result-title">お疲れさまでした！</h2>
+                    <div class="result-score">
+                        <span id="final-score">8</span> / <span id="final-total">10</span>
+                        <div class="score-percentage" id="score-percentage">80%</div>
+                    </div>
+                    
+                    <div class="result-message" id="result-message">
+                        素晴らしい結果です！
+                    </div>
+
+                    <div class="result-stats">
+                        <div class="stat-item">
+                            <span class="material-icons">check_circle</span>
+                            <span>正答数: <span id="correct-count">8</span></span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="material-icons">cancel</span>
+                            <span>誤答数: <span id="incorrect-count">2</span></span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="material-icons">timer</span>
+                            <span>所要時間: <span id="time-taken">3分30秒</span></span>
+                        </div>
+                    </div>
+
+                    <div class="result-actions">
+                        <button class="btn-primary" onclick="retryQuiz()">
+                            <span class="material-icons">refresh</span>
+                            もう一度挑戦
+                        </button>
+                        <button class="btn-secondary" onclick="goHome()">
+                            <span class="material-icons">home</span>
+                            ホームに戻る
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 統計画面 -->
+            <section id="stats-section" class="section">
+                <div class="stats-header">
+                    <button class="back-btn" onclick="goHome()">
+                        <span class="material-icons">arrow_back</span>
+                    </button>
+                    <h2>📊 学習記録</h2>
+                </div>
+
+                <div class="stats-overview">
+                    <div class="overview-card">
+                        <span class="material-icons">emoji_events</span>
+                        <div>
+                            <h3 id="total-points">0</h3>
+                            <p>総獲得ポイント</p>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <span class="material-icons">quiz</span>
+                        <div>
+                            <h3 id="total-answered">0</h3>
+                            <p>総回答数</p>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <span class="material-icons">trending_up</span>
+                        <div>
+                            <h3 id="average-score">0%</h3>
+                            <p>平均正答率</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-stats" id="category-stats">
+                    <!-- カテゴリ別統計がここに表示されます -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
